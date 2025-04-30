@@ -2,14 +2,29 @@ CC := gcc
 CFLAGS = -Werror -Wextra -Wall
 .PHONY: all clean
 
+# all: testfs
+
+# testfs: testfs.c
+# 	$(CC) $(CFLAGS) -o $@ $^
+
+# # Build tests and execute them, don't produce executable?
+# test: testfs.c
+# 	$(CC) $(CFLAGS) -o $@ $^
+
+# clean:
+# 	rm -f testfs test
+
 all: testfs
+.PHONY: all
 
-testfs: testfs.c
-	$(CC) $(CFLAGS) -o $@ $^
+testfs: testfs.o image.o block.o
+	$(CC) -o $@ $^
 
-# Build tests and execute them, don't produce executable?
-test: testfs.c
-	$(CC) $(CFLAGS) -o $@ $^
+testfs.o: testfs.c
+	$(CC) $(CLFAGS) -c $^
 
-clean:
-	rm -f testfs test
+image.o: image.c image.h
+	$(CC) $(CLFAGS) -c $^
+
+block.o: block.c block.h
+	$(CC) $(CLFAGS) -c $^
