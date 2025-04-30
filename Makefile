@@ -15,10 +15,13 @@ CFLAGS = -Werror -Wextra -Wall
 # 	rm -f testfs test
 
 all: testfs
-.PHONY: all
+.PHONY: all clean pristine
 
-testfs: testfs.o image.o block.o
-	$(CC) -o $@ $^
+testfs: mylib.a
+	gcc -o $@ $^
+
+mylib.a: testfs.o image.o block.o
+	ar rcs $@ $^
 
 testfs.o: testfs.c
 	$(CC) $(CLFAGS) -c $^
@@ -28,3 +31,12 @@ image.o: image.c image.h
 
 block.o: block.c block.h
 	$(CC) $(CLFAGS) -c $^
+
+test: testfs
+	./testfs
+
+clean:
+	rm -f testfs.o image.o block.o
+
+pristine: clean
+	rm testfs *.a
