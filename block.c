@@ -16,5 +16,4 @@ void bwrite(int block_num, unsigned char *block){
     lseek(image_fd, block_num * BLOCK_SIZE, SEEK_SET);
     //write
     write(image_fd, block, BLOCK_SIZE);
-    return 0;
 }
