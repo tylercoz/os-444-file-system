@@ -1,26 +1,12 @@
 CC := gcc
 CFLAGS = -Werror -Wextra -Wall
-.PHONY: all clean
-
-# all: testfs
-
-# testfs: testfs.c
-# 	$(CC) $(CFLAGS) -o $@ $^
-
-# # Build tests and execute them, don't produce executable?
-# test: testfs.c
-# 	$(CC) $(CFLAGS) -o $@ $^
-
-# clean:
-# 	rm -f testfs test
-
-all: testfs
+OBJS = testfs.o image.o block.o
 .PHONY: all clean pristine
 
 testfs: mylib.a
 	gcc -o $@ $^
 
-mylib.a: testfs.o image.o block.o
+mylib.a: $(OBJS)
 	ar rcs $@ $^
 
 testfs.o: testfs.c
@@ -36,7 +22,7 @@ test: testfs
 	./testfs
 
 clean:
-	rm -f testfs.o image.o block.o
+	rm -f $(OBJS)
 
 pristine: clean
-	rm testfs *.a
+	rm -f testfs *.a
