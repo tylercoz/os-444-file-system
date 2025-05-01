@@ -1,22 +1,22 @@
 CC := gcc
-CFLAGS = -Werror -Wextra -Wall
+CFLAGS = -Werror -Wextra -Wall -DCTEST_ENABLE
 OBJS = testfs.o image.o block.o
 .PHONY: all clean pristine
 
 testfs: mylib.a
-	gcc -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^
 
 mylib.a: $(OBJS)
 	ar rcs $@ $^
 
 testfs.o: testfs.c
-	$(CC) $(CLFAGS) -c $^
+	$(CC) $(CFLAGS) -c $^
 
 image.o: image.c image.h
-	$(CC) $(CLFAGS) -c $^
+	$(CC) $(CFLAGS) -c $^
 
 block.o: block.c block.h
-	$(CC) $(CLFAGS) -c $^
+	$(CC) $(CFLAGS) -c $^
 
 test: testfs
 	./testfs
@@ -25,4 +25,4 @@ clean:
 	rm -f $(OBJS)
 
 pristine: clean
-	rm -f testfs *.a
+	rm -f testfs *.a *.h.pch
