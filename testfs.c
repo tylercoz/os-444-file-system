@@ -27,6 +27,26 @@ int main() {
 // Production
 #else
 
+
+void test_image_open(){
+  char *test_file = "test_file.txt"
+
+  //open file no truncate 
+  image_fd = image_open(test_file, 0);
+  CTEST_ASSERT(image_fd >= 0, "file open should succeed");
+  image_close(); 
+
+  //open file yes truncate 
+  image_fd = image_open(test_file, 1);
+  CTEST_ASSERT(image_fd >= 0, "file open should succeed");
+  image_close(); 
+
+}
+
+void test_image_close(){
+  CTEST_ASSERT(image_close() == 0, "file should close");
+}
+
 int main() {
   printf("hello, mother!\n");
 }
