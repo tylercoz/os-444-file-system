@@ -12,10 +12,10 @@ mylib.a: $(OBJS)
 testfs.o: testfs.c
 	$(CC) $(CFLAGS) -c $^
 
-image.o: image.c image.h
+image.o: image.c
 	$(CC) $(CFLAGS) -c $^
 
-block.o: block.c block.h
+block.o: block.c
 	$(CC) $(CFLAGS) -c $^
 
 test: testfs

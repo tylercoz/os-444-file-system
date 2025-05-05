@@ -2,7 +2,8 @@
 #include <unistd.h>
 #include "image.h"
 
-int image_fd;
+int image_fd = -1;  // Initialize to an invalid fd
+
 
 // returns file descriptor
 int image_open(char *filename, int truncate){

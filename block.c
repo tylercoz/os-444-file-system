@@ -1,9 +1,11 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "image.h"
-int BLOCK_SIZE = 4096;
+#include "block.h"
 
-unsigned char *bread(int block_num, unsigned char *block){
+const int BLOCK_SIZE = 4096;
+
+unsigned char *bread(int block_num, unsigned char *block) {
     //lseek
     lseek(image_fd, block_num * BLOCK_SIZE, SEEK_SET);
     //read
@@ -11,7 +13,7 @@ unsigned char *bread(int block_num, unsigned char *block){
     return block;
 }
 
-void bwrite(int block_num, unsigned char *block){
+void bwrite(int block_num, unsigned char *block) {
     //lseek
     lseek(image_fd, block_num * BLOCK_SIZE, SEEK_SET);
     //write
