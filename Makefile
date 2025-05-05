@@ -9,20 +9,14 @@ testfs: mylib.a
 mylib.a: $(OBJS)
 	ar rcs $@ $^
 
-testfs.o: testfs.c
-	$(CC) $(CFLAGS) -c $^
-
-image.o: image.c
-	$(CC) $(CFLAGS) -c $^
-
-block.o: block.c
+%.o: %.c
 	$(CC) $(CFLAGS) -c $^
 
 test: testfs
 	./testfs
 
 clean:
-	rm -f $(OBJS)
+	rm -f *.o
 
 pristine: clean
 	rm -f testfs *.a *.h.pch

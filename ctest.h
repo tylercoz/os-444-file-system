@@ -1,3 +1,6 @@
+// @author: beejjorgenson
+// @reference: https://github.com/beejjorgensen/ctest
+
 #ifndef CTEST_H
 #define CTEST_H
 
@@ -68,4 +71,3 @@ do { \
 #endif
 
 #endif
-
