@@ -5,6 +5,7 @@
 #include "image.h"
 #include "block.h"
 #include "free.h"
+#include "inode.h"
 
 // Testing
 #ifdef CTEST_ENABLE
@@ -52,6 +53,42 @@ void test_block_bwrite_and_bread() {
   image_close();
 }
 
+void test_block_alloc(){
+  image_open("test_fs", 1);
+
+  unsigned char zero_block[4096] = {0};
+  bwrite(2, zero_block);
+
+
+  CTEST_ASSERT(image_fd != -1, "Open test image");
+
+  int block1 = alloc(); 
+  CTEST_ASSERT(block1 != -1, "first alloc should succeed");
+
+  int block2 = alloc(); 
+  CTEST_ASSERT(block2 != -1 && block2 != block1, "second alloc() returns different block");
+
+  image_close(); 
+}
+
+void test_inode_ialloc(){
+  image_open("test_fs", 1);
+
+  unsigned char zero_block[4096] = {0};
+  bwrite(1, zero_block);
+
+  CTEST_ASSERT(image_fd != -1, "Open test image");
+  
+  int inode1 = ialloc(); 
+  CTEST_ASSERT(inode1 != -1, "first alloc should succeed");
+
+  int inode2 = ialloc(); 
+  CTEST_ASSERT(inode2 != -1 && inode2 != inode1, "second alloc() returns different inode");
+
+  image_close(); 
+}
+
+
 void test_free_c() {
   char *test_file = "test_file.txt";
 
@@ -96,6 +133,9 @@ int main() {
 
   test_block_bwrite_and_bread();
   test_free_c();
+  
+  test_inode_ialloc();
+  test_block_alloc();
 
   CTEST_RESULTS();
 
