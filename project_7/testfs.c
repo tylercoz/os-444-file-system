@@ -10,88 +10,109 @@
 // Testing
 #ifdef CTEST_ENABLE
 
-void test_image_open() {
+void test_image_c() {
+  // open()
+  {
+    char *test_file = "test_file.txt";
+    int fd;
+
+    //open file no truncate
+    fd = image_open(test_file, 0);
+    CTEST_ASSERT(fd >= 0, "file open should succeed with no truncate");
+    image_close();
+
+    //open file yes truncate
+    fd = image_open(test_file, 1);
+    CTEST_ASSERT(fd >= 0, "file open should succeed with truncate");
+    image_close();
+
+    fd = image_open(test_file, 1);
+    CTEST_ASSERT(fd == image_fd, "global image_fd exists and is accurate");
+    image_close();
+  }
+
+  // close()
+  {
+    CTEST_ASSERT(image_close() == 0, "file closes successfully");
+  }
+}
+
+void test_block_c() {
   char *test_file = "test_file.txt";
-  int fd;
 
-  //open file no truncate
-  fd = image_open(test_file, 0);
-  CTEST_ASSERT(fd >= 0, "file open should succeed with no truncate");
-  image_close();
+  // bwrite()
+  {
+    image_open(test_file, 1);
+    unsigned char test_string[4096] = "A sentence, perhaps";
+    unsigned char result[4096] = {0};
+    bwrite(0, test_string);
+    bread(0, result);
+    CTEST_ASSERT(strcmp((char *)result, (char *)test_string) == 0, "bwrite and bread write and read from the buffer");
+    image_close();
+  }
 
-  //open file yes truncate
-  fd = image_open(test_file, 1);
-  CTEST_ASSERT(fd >= 0, "file open should succeed with truncate");
-  image_close();
+  // bread()
+  {
+    image_open(test_file, 0);
+    unsigned char result[4096] = {0};
+    unsigned char *buffer_returned = bread(0, result);
+    CTEST_ASSERT(result == buffer_returned, "bread returns pointer to same buffer");
+    image_close();
+  }
 
-  fd = image_open(test_file, 1);
-  CTEST_ASSERT(fd == image_fd, "global image_fd exists and is accurate");
-  image_close();
+  // alloc()
+  {
+    image_open("test_fs", 1);
 
+    unsigned char zero_block[4096] = {0};
+    bwrite(2, zero_block);
+
+
+    CTEST_ASSERT(image_fd != -1, "Open test image");
+
+    int block1 = alloc();
+    CTEST_ASSERT(block1 != -1, "first alloc should succeed");
+
+    int block2 = alloc();
+    CTEST_ASSERT(block2 != -1 && block2 != block1, "second alloc() returns different block");
+
+    image_close();
+  }
 }
 
-void test_image_close() {
-  CTEST_ASSERT(image_close() == 0, "file closes successfully");
-}
+void test_inode_c(){
 
-void test_block_bwrite_and_bread() {
-  char *test_file = "test_file.txt";
+  // ialloc()
+  {
+    image_open("test_fs", 1);
 
-  // Writes data from a buffer to disk image
-  unsigned char test_string[4096] = "A sentence, perhaps";
-  unsigned char result[4096] = {0};
-  image_open(test_file, 1);
-  bwrite(0, test_string);
-  bread(0, result);
-  CTEST_ASSERT(strcmp((char *)result, (char *)test_string) == 0, "bwrite and bread write and read from the buffer");
-  image_close();
+    unsigned char zero_block[4096] = {0};
+    bwrite(1, zero_block);
 
-  // bread() returns pointer to same buffer
-  image_open(test_file, 0);
-  unsigned char *buffer_returned = bread(0, result);
-  CTEST_ASSERT(result == buffer_returned, "bread returns pointer to same buffer");
-  image_close();
-}
+    CTEST_ASSERT(image_fd != -1, "Open test image");
 
-void test_block_alloc(){
-  image_open("test_fs", 1);
+    int inode1 = ialloc();
+    CTEST_ASSERT(inode1 != -1, "first alloc should succeed");
 
-  unsigned char zero_block[4096] = {0};
-  bwrite(2, zero_block);
+    int inode2 = ialloc();
+    CTEST_ASSERT(inode2 != -1 && inode2 != inode1, "second alloc() returns different inode");
 
+    image_close();
+  }
 
-  CTEST_ASSERT(image_fd != -1, "Open test image");
+  // incore_find_free()
+  {
 
-  int block1 = alloc(); 
-  CTEST_ASSERT(block1 != -1, "first alloc should succeed");
-
-  int block2 = alloc(); 
-  CTEST_ASSERT(block2 != -1 && block2 != block1, "second alloc() returns different block");
-
-  image_close(); 
-}
-
-void test_inode_ialloc(){
-  image_open("test_fs", 1);
-
-  unsigned char zero_block[4096] = {0};
-  bwrite(1, zero_block);
-
-  CTEST_ASSERT(image_fd != -1, "Open test image");
-  
-  int inode1 = ialloc(); 
-  CTEST_ASSERT(inode1 != -1, "first alloc should succeed");
-
-  int inode2 = ialloc(); 
-  CTEST_ASSERT(inode2 != -1 && inode2 != inode1, "second alloc() returns different inode");
-
-  image_close(); 
+  }
+  // incore_find()
+  // incore_free_all()
 }
 
 
 void test_free_c() {
   char *test_file = "test_file.txt";
 
+  // set_free()
   // set a bit
   {
     image_open(test_file, 1);
@@ -101,6 +122,7 @@ void test_free_c() {
     image_close();
   }
 
+  // set_free()
   // free a bit
   {
     image_open(test_file, 1);
@@ -111,7 +133,7 @@ void test_free_c() {
     image_close();
   }
 
-  // find next free bit
+  // find_free()
   {
     int SET_BIT_NUM = 7;
     image_open(test_file, 1);
@@ -128,14 +150,10 @@ void test_free_c() {
 int main() {
   CTEST_VERBOSE(1);
 
-  test_image_open();
-  test_image_close();
-
-  test_block_bwrite_and_bread();
+  test_image_c();
+  test_block_c();
   test_free_c();
-  
-  test_inode_ialloc();
-  test_block_alloc();
+  test_inode_c();
 
   CTEST_RESULTS();
 
