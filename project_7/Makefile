@@ -1,6 +1,6 @@
 CC := gcc
 CFLAGS = -Werror -Wextra -Wall -DCTEST_ENABLE
-OBJS = testfs.o image.o block.o free.o inode.o
+OBJS = testfs.o image.o block.o free.o inode.o pack.o
 .PHONY: all clean pristine
 
 testfs: mylib.a

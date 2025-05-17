@@ -119,6 +119,30 @@ void test_inode_c() {
     struct inode *test_free_all = incore_find_free();
     CTEST_ASSERT(free_inode == test_free_all, "free_all() resets the incore");
   }
+
+  // TODO: Write test for ptr_count, IMPORTANT
+  // write_inode()
+  // read_inode()
+  {
+    struct inode *in = incore_find_free();
+    struct inode *result = incore_find_free();
+    in->size = 10;
+    in->owner_id = 2;
+    in->permissions = 1;
+    in->flags = 7;
+    in->link_count = 4;
+    in->inode_num = 123;
+    in->block_ptr[4] = 14;
+    write_inode(in);
+    read_inode(result, 123);
+
+    CTEST_ASSERT(in->size == result->size, "inode size written to disk properly");
+    CTEST_ASSERT(in->owner_id == result->owner_id, "inode owner id written to disk properly");
+    CTEST_ASSERT(in->permissions == result->permissions, "inode permissions written to disk properly");
+    CTEST_ASSERT(in->flags == result->flags, "inode flags written to disk properly");
+    CTEST_ASSERT(in->link_count == result->link_count, "inode link count written to disk properly");
+    CTEST_ASSERT(in->block_ptr[4] == result->block_ptr[4], "inode block ptrs written to disk properly");
+  }
 }
 
 void test_free_c() {

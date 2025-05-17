@@ -1,8 +1,10 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "inode.h"
 #include "block.h"
 #include "free.h"
+#include "pack.h"
 
 #define INODE_COUNT (BLOCK_SIZE * 8)
 #define INODE_SIZE 64
@@ -31,7 +33,6 @@ int ialloc(void){
 
 }
 
-// TODO: TEST
 struct inode *incore_find_free(void) {
   for (int i = 0; i < incore_size; i++) {
     if (incore[i].ref_count == 0) {
@@ -41,7 +42,6 @@ struct inode *incore_find_free(void) {
   return NULL;
 }
 
-// TODO: TEST
 struct inode *incore_find(unsigned int inode_num) {
   for (int i = 0; i < incore_size; i++) {
     if (incore[i].ref_count != 0) {
@@ -53,9 +53,52 @@ struct inode *incore_find(unsigned int inode_num) {
   return NULL;
 }
 
-// TODO: TEST
 void incore_free_all(void) {
   for (int i = 0; i < incore_size; i++) {
     incore[i].ref_count = 0;
+  }
+}
+
+void write_inode(struct inode *in) {
+  int inode_num = in->inode_num;
+
+  int block_num = (inode_num / INODES_PER_BLOCK) + INODE_FIRST_BLOCK;
+  int block_offset = inode_num % INODES_PER_BLOCK;
+
+  unsigned char block[4096] = {0};
+  bread(block_num, block);
+
+  struct inode *din = (struct inode *)(block + block_offset);
+
+  din->size = in->size;
+  din->owner_id = in->owner_id;
+  din->permissions = in->permissions;
+  din->flags = in->flags;
+  din->link_count = in->link_count;
+
+  for (int i = 0; i < INODE_PTR_COUNT; i++) {
+    din->block_ptr[i] = in->block_ptr[i];
+  }
+
+  bwrite(block_num, (unsigned char *)block);
+}
+
+void read_inode(struct inode *in, int inode_num) {
+  int block_num = (inode_num / INODES_PER_BLOCK) + INODE_FIRST_BLOCK;
+  int block_offset = inode_num % INODES_PER_BLOCK;
+
+  unsigned char block[4096] = {0};
+  bread(block_num, block);
+
+  struct inode din = *(struct inode *)(block + block_offset);
+
+  in->size = din.size;
+  in->owner_id = din.owner_id;
+  in->permissions = din.permissions;
+  in->flags = din.flags;
+  in->link_count = din.link_count;
+
+  for (int i = 0; i < INODE_PTR_COUNT; i++) {
+    in->block_ptr[i] = din.block_ptr[i];
   }
 }
