@@ -1,3 +1,7 @@
+// This file tests all the other files
+// New format: When adding a test, go to the function with the file name, add a comment on what function you are testing,
+// and add brackets, so that the tests don't interact with each other.
+
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -10,10 +14,11 @@
 // Testing
 #ifdef CTEST_ENABLE
 
+static char *test_file = "test_file.txt";
+
 void test_image_c() {
   // open()
   {
-    char *test_file = "test_file.txt";
     int fd;
 
     //open file no truncate
@@ -38,7 +43,6 @@ void test_image_c() {
 }
 
 void test_block_c() {
-  char *test_file = "test_file.txt";
 
   // bwrite()
   {
@@ -62,7 +66,7 @@ void test_block_c() {
 
   // alloc()
   {
-    image_open("test_fs", 1);
+    image_open(test_file, 1);
 
     unsigned char zero_block[4096] = {0};
     bwrite(2, zero_block);
@@ -80,11 +84,11 @@ void test_block_c() {
   }
 }
 
-void test_inode_c(){
+void test_inode_c() {
 
   // ialloc()
   {
-    image_open("test_fs", 1);
+    image_open(test_file, 1);
 
     unsigned char zero_block[4096] = {0};
     bwrite(1, zero_block);
@@ -101,16 +105,23 @@ void test_inode_c(){
   }
 
   // incore_find_free()
-  {
-
-  }
   // incore_find()
   // incore_free_all()
+  {
+    image_open(test_file, 1);
+    struct inode *free_inode = incore_find_free();
+    free_inode->ref_count = 69;
+    free_inode->inode_num = 123;
+    struct inode *result_of_find = incore_find(123);
+    CTEST_ASSERT(free_inode == result_of_find, "incore_find() returns the correct inode");
+    CTEST_ASSERT(result_of_find->ref_count == 69, "both functions return pointer that is useable");
+    incore_free_all();
+    struct inode *test_free_all = incore_find_free();
+    CTEST_ASSERT(free_inode == test_free_all, "free_all() resets the incore");
+  }
 }
 
-
 void test_free_c() {
-  char *test_file = "test_file.txt";
 
   // set_free()
   // set a bit
@@ -162,7 +173,6 @@ int main() {
 
 // Production
 #else
-
 
 int main() {
   printf("hello, mother!\n");
