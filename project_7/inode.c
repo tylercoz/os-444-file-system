@@ -102,3 +102,21 @@ void read_inode(struct inode *in, int inode_num) {
     in->block_ptr[i] = din.block_ptr[i];
   }
 }
+
+// TODO: TEST
+struct inode *iget(int inode_num) {
+  struct inode *in = incore_find(inode_num);
+  if (in != NULL) {
+    in->ref_count++;
+    return in;
+  }
+  struct inode *free_inode = incore_find_free();
+  if (free_inode == NULL) {
+    // No free nodes left
+    return NULL;
+  }
+  read_inode(free_inode, inode_num);
+  free_inode->ref_count = 1;
+  free_inode->inode_num = inode_num;
+  return free_inode;
+}
