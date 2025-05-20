@@ -1,6 +1,3 @@
-TODO:
- * No magic numbers
-
 # Very Very Simple File System
 
 ## Building
