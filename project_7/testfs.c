@@ -86,23 +86,34 @@ void test_block_c() {
 
 void test_inode_c() {
 
-  // ialloc()
-  {
-    image_open(test_file, 1);
 
+    image_open(test_file, 1);
     unsigned char zero_block[4096] = {0};
     bwrite(1, zero_block);
 
-    CTEST_ASSERT(image_fd != -1, "Open test image");
+    //ialloc()
+    {
+      struct inode *inode1 = ialloc();
 
-    int inode1 = ialloc();
-    CTEST_ASSERT(inode1 != -1, "first alloc should succeed");
+    CTEST_ASSERT(inode1 != NULL, "Open test image");
 
-    int inode2 = ialloc();
-    CTEST_ASSERT(inode2 != -1 && inode2 != inode1, "second alloc() returns different inode");
+    CTEST_ASSERT(inode1->ref_count == 1, "ialloc should set ref_count to 1");
 
-    image_close();
-  }
+    CTEST_ASSERT(inode1->size==0, "ialloc should initialuze size to 0");
+
+    CTEST_ASSERT(inode1->inode_num >= 0, "ialloc should set valid inode_num");
+
+    struct inode *in2 = ialloc();
+        CTEST_ASSERT(in2 != NULL && in2 != inode1, "ialloc() should return different inodes");
+
+
+    // bitmap update gone right 
+    unsigned char block[BLOCK_SIZE];
+        bread(1, block);
+        int free_inode = find_free(block);
+        CTEST_ASSERT(free_inode != (int)inode1->inode_num && free_inode != (int)in2->inode_num,"ialloc should mark inodes as used in bitmap");
+    }
+
 
   // incore_find_free()
   // incore_find()
@@ -121,7 +132,7 @@ void test_inode_c() {
     image_close();
   }
 
-  // TODO: Write test for ptr_count, IMPORTANT
+
   // write_inode()
   // read_inode()
   {
@@ -135,6 +146,7 @@ void test_inode_c() {
     in->link_count = 4;
     in->inode_num = 123;
     in->block_ptr[4] = 14;
+
     write_inode(in);
     read_inode(result, 123);
 
@@ -146,7 +158,35 @@ void test_inode_c() {
     CTEST_ASSERT(in->block_ptr[4] == result->block_ptr[4], "inode block ptrs written to disk properly");
     image_close();
   }
-}
+
+  //iget and iput
+  {
+    incore_free_all(); 
+    unsigned test_inum = 50; 
+
+    //first iget loads from disk
+    struct inode *inode1 = iget((unsigned int)(test_inum));
+    CTEST_ASSERT(inode1 != NULL, "iget should succeed first time");
+    CTEST_ASSERT(inode1->ref_count == 1, "iget should set ref_count to 1");
+    CTEST_ASSERT(inode1->inode_num == test_inum, "iget should set correct inode_num");
+        
+    // Second iget should increment count
+    struct inode *inode2 = iget((unsigned int)test_inum);
+    CTEST_ASSERT(inode1 == inode2, "iget should return same pointer for same inode");
+    CTEST_ASSERT(inode1->ref_count == 2, "iget should increment ref_count");
+        
+    // iput() tests
+    iput(inode1);
+    CTEST_ASSERT(inode1->ref_count == 1, "iput should decrement ref_count");
+    
+    iput(inode2);
+    CTEST_ASSERT(inode1->ref_count == 0, "iput should decrement to 0");
+    
+    }
+
+    image_close();
+  }
+
 
 void test_free_c() {
 
