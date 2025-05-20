@@ -7,6 +7,7 @@
 //extern variable that is shared with the other files
 const int BLOCK_SIZE = 4096; //bytes
 #define BLOCK_COUNT (BLOCK_SIZE * 8)
+#define FREE_BLOCK_MAP 2
 
 // These methods are writing and reading from the fake disk we created in image.c
 // which is referred to by the file description `image_fd`
@@ -30,7 +31,7 @@ void bwrite(int block_num, unsigned char *block) {
 
 int alloc(void){
     unsigned char block[BLOCK_SIZE];
-    bread(2, block);
+    bread(FREE_BLOCK_MAP, block);
 
     int block_num = find_free(block);
     if (block_num == -1 || block_num >= BLOCK_COUNT){
@@ -38,7 +39,7 @@ int alloc(void){
     }
 
     set_free(block, block_num, 1);
-    bwrite(2, block);
+    bwrite(FREE_BLOCK_MAP, block);
 
     return block_num;
 
