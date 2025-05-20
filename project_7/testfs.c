@@ -118,12 +118,14 @@ void test_inode_c() {
     incore_free_all();
     struct inode *test_free_all = incore_find_free();
     CTEST_ASSERT(free_inode == test_free_all, "free_all() resets the incore");
+    image_close();
   }
 
   // TODO: Write test for ptr_count, IMPORTANT
   // write_inode()
   // read_inode()
   {
+    image_open(test_file, 1);
     struct inode *in = incore_find_free();
     struct inode *result = incore_find_free();
     in->size = 10;
@@ -142,6 +144,7 @@ void test_inode_c() {
     CTEST_ASSERT(in->flags == result->flags, "inode flags written to disk properly");
     CTEST_ASSERT(in->link_count == result->link_count, "inode link count written to disk properly");
     CTEST_ASSERT(in->block_ptr[4] == result->block_ptr[4], "inode block ptrs written to disk properly");
+    image_close();
   }
 }
 

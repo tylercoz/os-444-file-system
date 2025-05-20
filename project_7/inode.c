@@ -64,42 +64,41 @@ void write_inode(struct inode *in) {
 
   int block_num = (inode_num / INODES_PER_BLOCK) + INODE_FIRST_BLOCK;
   int block_offset = inode_num % INODES_PER_BLOCK;
+  int block_offset_bytes = block_offset * INODE_SIZE;
 
-  unsigned char block[4096] = {0};
+  unsigned char block[BLOCK_SIZE];
   bread(block_num, block);
 
-  struct inode *din = (struct inode *)(block + block_offset);
+  write_u32(block + block_offset_bytes + 0, in->size);
+  write_u16(block + block_offset_bytes + 4, in->owner_id);
+  write_u8 (block + block_offset_bytes + 6, in->permissions);
+  write_u8 (block + block_offset_bytes + 7, in->flags);
+  write_u8 (block + block_offset_bytes + 8, in->link_count);
 
-  din->size = in->size;
-  din->owner_id = in->owner_id;
-  din->permissions = in->permissions;
-  din->flags = in->flags;
-  din->link_count = in->link_count;
 
   for (int i = 0; i < INODE_PTR_COUNT; i++) {
-    din->block_ptr[i] = in->block_ptr[i];
+    write_u16(block + block_offset_bytes + 9 + (2*i), in->block_ptr[i]);
   }
 
-  bwrite(block_num, (unsigned char *)block);
+  bwrite(block_num, block);
 }
 
 void read_inode(struct inode *in, int inode_num) {
   int block_num = (inode_num / INODES_PER_BLOCK) + INODE_FIRST_BLOCK;
   int block_offset = inode_num % INODES_PER_BLOCK;
+  int block_offset_bytes = block_offset * INODE_SIZE;
 
-  unsigned char block[4096] = {0};
+  unsigned char block[BLOCK_SIZE];
   bread(block_num, block);
 
-  struct inode din = *(struct inode *)(block + block_offset);
-
-  in->size = din.size;
-  in->owner_id = din.owner_id;
-  in->permissions = din.permissions;
-  in->flags = din.flags;
-  in->link_count = din.link_count;
+  in->size        = read_u32(block + block_offset_bytes + 0);
+  in->owner_id    = read_u16(block + block_offset_bytes + 4);
+  in->permissions = read_u8 (block + block_offset_bytes + 6);
+  in->flags       = read_u8 (block + block_offset_bytes + 7);
+  in->link_count  = read_u8 (block + block_offset_bytes + 8);
 
   for (int i = 0; i < INODE_PTR_COUNT; i++) {
-    in->block_ptr[i] = din.block_ptr[i];
+    in->block_ptr[i] = read_u16(block + block_offset_bytes + 9 + (2*i));
   }
 }
 
