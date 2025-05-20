@@ -23,8 +23,9 @@ TODO:
 
 ## Data
 
- `image_fd` - global variable representing simulated image disk
+* `image_fd` - global variable representing simulated image disk
 * `BLOCK_SIZE` - global constant representing size of a block in our file system
+* `incore` - array storing virtual inode structs for easy use
 
 ## Functions
 
@@ -37,6 +38,13 @@ TODO:
   * `alloc` - allocate a previously-free data block from the block map.
 * `inode.c`
   * `ialloc` - allocate a previously-free inode in the inode map
+  * `incore_find_free` - finds next inode with no references and returns it
+  * `incore_find` - return pointer to inode with passed in `inode_num`, or `-1` if none found.
+  * `incore_free_all` - sets all incore inodes `ref_count` to `0`.
+  * `write_inode` - write data from virtual inode struct onto image_fd
+  * `read_inode` - read inode from image_fd onto virtual inode struct
+  * `iget` -  Return a pointer to an in-core inode for the given `inode_num`, or `NULL` on failure.
+  * `iput` - decrement the `ref_count` on the inode. If it falls to `0`, write the inode to disk.
 * `free.c`
   * `set_free` - set a specific bit to the value in set (0 or 1)
   * `find_low_clear_bit` - bitwise operation helper function to find lowest clear bit
@@ -45,5 +53,5 @@ TODO:
 
 ## Notes
 
-* get tires rotated.
-* believe in yourself.
+* clean room
+* never give up on love

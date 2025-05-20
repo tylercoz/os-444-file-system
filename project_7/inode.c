@@ -6,13 +6,6 @@
 #include "free.h"
 #include "pack.h"
 
-#define INODE_COUNT (BLOCK_SIZE * 8)
-#define INODE_SIZE 64
-#define INODE_FIRST_BLOCK 3
-#define INODE_BLOCKS 4
-#define INODES_PER_BLOCK (BLOCK_SIZE / INODE_SIZE)
-#define MAX_SYS_OPEN_FILES 64
-
 static struct inode incore[MAX_SYS_OPEN_FILES] = {0};
 static int incore_size = sizeof(incore) / sizeof(struct inode);
 
@@ -33,15 +26,15 @@ struct inode *ialloc(void){
     bwrite(1, block);
 
     in->size = 0;
-    in->owner_id = 0; 
-    in->permissions = 0; 
-    in->flags = 0; 
-    in->link_count = 0; 
+    in->owner_id = 0;
+    in->permissions = 0;
+    in->flags = 0;
+    in->link_count = 0;
     for (int i = 0; i < INODE_PTR_COUNT; i++){
-        in->block_ptr[i] = 0; 
+        in->block_ptr[i] = 0;
     }
 
-    in->inode_num = inode_num; 
+    in->inode_num = inode_num;
 
     write_inode(in);
 
@@ -118,7 +111,6 @@ void read_inode(struct inode *in, int inode_num) {
   }
 }
 
-// TODO: TEST
 struct inode *iget(int inode_num) {
   struct inode *in = incore_find(inode_num);
   if (in != NULL) {
@@ -139,11 +131,11 @@ struct inode *iget(int inode_num) {
 
 void iput(struct inode *in){
     if (in == NULL){
-        return; 
+        return;
     }
 
     if (in->ref_count == 0){
-        return; 
+        return;
     }
 
     in->ref_count--;
