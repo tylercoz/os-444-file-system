@@ -111,6 +111,7 @@ void read_inode(struct inode *in, int inode_num) {
   }
 }
 
+// return inode with inode num, allocate new inode if necessary
 struct inode *iget(int inode_num) {
   struct inode *in = incore_find(inode_num);
   if (in != NULL) {

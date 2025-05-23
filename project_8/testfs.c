@@ -10,6 +10,7 @@
 #include "block.h"
 #include "free.h"
 #include "inode.h"
+#include "mkfs.h"
 
 // Testing
 #ifdef CTEST_ENABLE
@@ -233,6 +234,10 @@ void test_free_c() {
   }
 }
 
+void test_mkfs_c() {
+  mkfs();
+}
+
 int main() {
   CTEST_VERBOSE(1);
 
@@ -240,6 +245,7 @@ int main() {
   test_block_c();
   test_free_c();
   test_inode_c();
+  test_mkfs_c();
 
   CTEST_RESULTS();
 

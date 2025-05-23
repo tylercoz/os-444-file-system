@@ -1,3 +1,11 @@
+todo:
+  - [ ] create root directory (Tyler)
+  - [ ] dir open (Tyler)
+  - [ ] dir read (Abbey)
+  - [ ] dir close (Tyler)
+  - [ ] ls function (no testing required) (Abbey)
+
+
 # Very Very Simple File System
 
 ## Building
