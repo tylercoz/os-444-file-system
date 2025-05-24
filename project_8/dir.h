@@ -1,6 +1,4 @@
-#ifndef BLOCK_H
-#define BLOCK_H
-
-#define ENTRY_SIZE 32
+#ifndef DIR_H
+#define DIR_H
 
 #endif
