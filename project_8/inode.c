@@ -45,6 +45,7 @@ struct inode *ialloc(void){
 struct inode *incore_find_free(void) {
   for (int i = 0; i < incore_size; i++) {
     if (incore[i].ref_count == 0) {
+      incore[i].ref_count++;
       return incore + i;
     }
   }

@@ -11,6 +11,7 @@
 #include "free.h"
 #include "inode.h"
 #include "mkfs.h"
+#include "pack.h"
 
 // Testing
 #ifdef CTEST_ENABLE
@@ -113,9 +114,9 @@ void test_inode_c() {
 
     // bitmap update gone right
     unsigned char block[BLOCK_SIZE];
-        bread(1, block);
-        int free_inode = find_free(block);
-        CTEST_ASSERT(free_inode != (int)inode1->inode_num && free_inode != (int)in2->inode_num,"ialloc should mark inodes as used in bitmap");
+    bread(1, block);
+    int free_inode = find_free(block);
+    CTEST_ASSERT(free_inode != (int)inode1->inode_num && free_inode != (int)in2->inode_num,"ialloc should mark inodes as used in bitmap");
     }
 
 
@@ -235,7 +236,37 @@ void test_free_c() {
 }
 
 void test_mkfs_c() {
-  mkfs();
+  // ialloc
+  // block
+  // test flags
+  // test block nums and names
+  // mkfs()
+  {
+    image_open(test_file, 1);
+
+    mkfs();
+
+    struct inode *in = incore_find_free();
+    read_inode(in, 0);
+    CTEST_ASSERT(in->size == 2 * ENTRY_SIZE, "inode set correctly");
+    CTEST_ASSERT(in->flags == 2,  "inode set correctly");
+    CTEST_ASSERT(in->block_ptr[0] == 7,  "inode set correctly");
+
+    unsigned char block[BLOCK_SIZE];
+    memset(block, 0, BLOCK_SIZE);
+    bread(in->block_ptr[0], block);
+    short curr_size = read_u16(block);
+    char curr_name = read_u8(block + 2);
+    CTEST_ASSERT(curr_size == 0, "mkfs disk info is correct");
+    CTEST_ASSERT(curr_name == '.', "mkfs disk info is correct");
+
+    short parent_size = read_u16(block + ENTRY_SIZE);
+    char parent_name = read_u8(block + 2 + ENTRY_SIZE);
+    CTEST_ASSERT(parent_size == 0, "mkfs disk info is correct");
+    CTEST_ASSERT(parent_name == *"..", "mkfs disk info is correct");
+
+    image_close();
+  }
 }
 
 int main() {

@@ -1,5 +1,6 @@
 #include <string.h>
 #include <unistd.h>
+#include <stdio.h>
 #include "mkfs.h"
 #include "image.h"
 #include "block.h"
@@ -7,10 +8,7 @@
 #include "dir.h"
 #include "pack.h"
 
-#define ENTRY_SIZE 32
-
 void mkfs() {
-  image_open("disk.img", 1);
   unsigned char empty_block[BLOCK_SIZE];
   for (int i = 0; i <= 6; i++) {
     bwrite(i, empty_block);
@@ -33,14 +31,13 @@ void mkfs() {
   unsigned char block[BLOCK_SIZE];
   // this directory "."
   write_u16(block, in->inode_num);
-  strcpy((char *)block, ".");
+  strcpy((char *)block + 2, ".");
 
   // this directory ".."
   write_u16(block + ENTRY_SIZE, in->inode_num);
-  strcpy((char *)block, "..");
+  strcpy((char *)block + ENTRY_SIZE + 2, "..");
 
-  bwrite(alloc_block_num, block);
   iput(in);
-
-  image_close();
+  read_inode(in, 100);
+  bwrite(alloc_block_num, block);
 }

@@ -20,3 +20,6 @@ clean:
 
 pristine: clean
 	rm -f testfs *.a *.h.pch
+
+debug: mylib.a
+	$(CC) -g $(CFLAGS) -o $@ $^
