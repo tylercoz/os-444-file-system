@@ -5,8 +5,8 @@
 #include "image.h"
 #include "block.h"
 #include "inode.h"
-#include "dir.h"
 #include "pack.h"
+#include "dir.h"
 
 void mkfs() {
   unsigned char empty_block[BLOCK_SIZE];

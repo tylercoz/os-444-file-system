@@ -5,12 +5,13 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include "block.h"
 #include "ctest.h"
 #include "image.h"
-#include "block.h"
 #include "free.h"
 #include "inode.h"
 #include "mkfs.h"
+#include "dir.h"
 #include "pack.h"
 
 // Testing
@@ -270,6 +271,33 @@ void test_mkfs_c() {
   }
 }
 
+void test_dir_c() {
+  //directory_open()
+  {
+    image_open(test_file, 1);
+
+    mkfs();
+    struct directory *dir = directory_open(0);
+
+    CTEST_ASSERT(dir->inode != NULL, "directory has valid inode");
+    CTEST_ASSERT(dir->offset == 0, "directory offset is 0");
+
+    image_close();
+  }
+
+  //directory_close()
+  {
+    image_open(test_file, 1);
+
+    mkfs();
+    struct directory *dir = directory_open(0);
+    directory_close(&dir);
+    CTEST_ASSERT(dir == NULL, "directory closes correctly");
+
+    image_close();
+  }
+}
+
 int main() {
   CTEST_VERBOSE(1);
 
@@ -278,6 +306,7 @@ int main() {
   test_free_c();
   test_inode_c();
   test_mkfs_c();
+  test_dir_c();
 
   CTEST_RESULTS();
 
