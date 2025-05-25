@@ -13,6 +13,7 @@ void mkfs() {
   for (int i = 0; i <= 6; i++) {
     bwrite(i, empty_block);
   }
+
   // reserve first 7 blocks in free block map as used
   char first_seven = 127;
   lseek(image_fd, FREE_BLOCK_MAP * BLOCK_SIZE, SEEK_SET);

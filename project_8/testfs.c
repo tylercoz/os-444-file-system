@@ -236,15 +236,16 @@ void test_free_c() {
 }
 
 void test_mkfs_c() {
-  // ialloc
-  // block
-  // test flags
-  // test block nums and names
   // mkfs()
   {
     image_open(test_file, 1);
 
     mkfs();
+
+    unsigned char free_block_map[BLOCK_SIZE];
+    memset(free_block_map, 0, BLOCK_SIZE);
+    bread(FREE_BLOCK_MAP, free_block_map);
+    CTEST_ASSERT(free_block_map[0] == 255, "mkfs() allocates first block correctly");
 
     struct inode *in = incore_find_free();
     read_inode(in, 0);
