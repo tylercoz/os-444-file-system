@@ -1,16 +1,11 @@
-todo:
-  - [ ] dir read (Abbey)
-  - [ ] ls function (no testing required) (Abbey)
-
-
 # Very Very Simple File System
 
 ## Building
 
-  * `make` - build executable `testfs`
-  * `make test` - `make` and run executable
-  * `make clean` - remove object files
-  * `make pristine` - `make clean` and remove `.a`, `.pch`, and executable
+* `make` - build executable `testfs`
+* `make test` - `make` and run executable
+* `make clean` - remove object files
+* `make pristine` - `make clean` and remove `.a`, `.pch`, and executable
 
 ## Files
 
@@ -19,6 +14,8 @@ todo:
 * `testfs.c` - Testing functionality. Run with `make test`
 * `free.c` - set and find free blocks
 * `inode.c` - inode functionality
+* `dir.c` - directory operations
+* `ls.c` - directory listing function
 * `ctest.h` - Testing suite by Beej
 * `pack.c` - Byte packing unpacking functions by Beej
 * `test_file.txt` - File for testing in `ctest.h`
@@ -45,15 +42,21 @@ todo:
   * `incore_free_all` - sets all incore inodes `ref_count` to `0`.
   * `write_inode` - write data from virtual inode struct onto image_fd
   * `read_inode` - read inode from image_fd onto virtual inode struct
-  * `iget` -  Return a pointer to an in-core inode for the given `inode_num`, or `NULL` on failure.
+  * `iget` - Return a pointer to an in-core inode for the given `inode_num`, or `NULL` on failure.
   * `iput` - decrement the `ref_count` on the inode. If it falls to `0`, write the inode to disk.
 * `free.c`
   * `set_free` - set a specific bit to the value in set (0 or 1)
   * `find_low_clear_bit` - bitwise operation helper function to find lowest clear bit
-  * `find_free`  - find a 0 bit and return its index (i.e. the block number that corresponds to this bit).
+  * `find_free` - find a 0 bit and return its index (i.e. the block number that corresponds to this bit).
+* `dir.c`
+  * `directory_open` - opens a directory and returns a directory struct
+  * `directory_get` - reads the next directory entry
+  * `directory_close` - closes an open directory
+* `ls.c`
+  * `ls` - lists directory contents (no testing required)
 
 
 ## Notes
 
-* clean room
-* never give up on love
+* write thank you letter to Jim and Kathy
+* be kind
