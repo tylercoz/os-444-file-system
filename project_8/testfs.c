@@ -285,6 +285,38 @@ void test_dir_c() {
     image_close();
   }
 
+  //directory_get
+  {
+    image_open(test_file, 1);
+        mkfs();
+        
+        // test directory
+        struct inode *test_inode = ialloc();
+        test_inode->flags = 2;  
+        test_inode->size = sizeof(struct directory_entry);
+        test_inode->block_ptr[0] = alloc();
+        
+        // test entry
+        unsigned char block[BLOCK_SIZE];
+        write_u16(block, 123);  // inode_num
+        strcpy((char*)(block + 2), "testfile");  // name
+        bwrite(test_inode->block_ptr[0], block);
+        write_inode(test_inode);
+
+        // Test directory_get
+        struct directory *dir = directory_open(test_inode->inode_num);
+        struct directory_entry ent;
+        int result = directory_get(dir, &ent);
+        
+        CTEST_ASSERT(result == 0, "successfully gets entry");
+        CTEST_ASSERT(ent.inode_num == 123, "correct inode number");
+        CTEST_ASSERT(strcmp(ent.name, "testfile") == 0, "correct filename");
+        CTEST_ASSERT(dir->offset == sizeof(struct directory_entry), "updates offset");
+        
+        directory_close(&dir);
+        image_close();
+  }
+
   //directory_close()
   {
     image_open(test_file, 1);
