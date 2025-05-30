@@ -4,6 +4,7 @@
 #include "inode.h"
 #include "block.h"
 #include "free.h"
+#include "mkfs.h"
 #include "pack.h"
 
 static struct inode incore[MAX_SYS_OPEN_FILES] = {0};
@@ -145,4 +146,9 @@ void iput(struct inode *in){
     if(in->ref_count == 0){
         write_inode(in);
     }
+}
+
+struct inode *namei(char *path) {
+  (void)path;
+  return iget(ROOT_INODE_NUM);
 }

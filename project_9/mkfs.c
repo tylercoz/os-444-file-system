@@ -24,7 +24,7 @@ void mkfs() {
   int alloc_block_num = alloc();
 
   // set inode
-  in->inode_num = 0;
+  in->inode_num = ROOT_INODE_NUM;
   in->flags = 2;
   in->size = 2 * ENTRY_SIZE;
   in->block_ptr[0] = alloc_block_num;

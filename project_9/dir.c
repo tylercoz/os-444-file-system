@@ -26,24 +26,24 @@ int directory_get(struct directory *dir, struct directory_entry *ent){
   }
 
   //get index to block_ptr to read
-  int data_block_index = dir->offset / BLOCK_SIZE; 
-  //read the block 
+  int data_block_index = dir->offset / BLOCK_SIZE;
+  //read the block
   int data_block_num = dir->inode->block_ptr[data_block_index];
   unsigned char block[BLOCK_SIZE];
   bread(data_block_num, block);
 
-  //compute offset 
+  //compute offset
   int offset_in_block = dir->offset % BLOCK_SIZE;
 
-  //extract directory entry 
+  //extract directory entry
   ent->inode_num = read_u16(block + offset_in_block);
 
   //extract the file name
   strcpy(ent->name, (char*)(block + offset_in_block + 2));
 
-  //update position 
+  //update position
   dir->offset += sizeof(struct directory_entry);
-  return 0; 
+  return 0;
 }
 
 
@@ -54,4 +54,8 @@ void directory_close(struct directory **d) {
   iput((**d).inode);
   free(*d);
   *d = NULL;
+}
+
+int directory_make(char *path) {
+  return -1;
 }
