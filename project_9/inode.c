@@ -148,6 +148,7 @@ void iput(struct inode *in){
     }
 }
 
+// Currently only ever returns root inode
 struct inode *namei(char *path) {
   (void)path;
   return iget(ROOT_INODE_NUM);
