@@ -57,5 +57,6 @@ void directory_close(struct directory **d) {
 }
 
 int directory_make(char *path) {
+  (void)path;
   return -1;
 }
