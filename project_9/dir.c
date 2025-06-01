@@ -111,7 +111,7 @@ int directory_make(char *path) {
 
   // Add the new directory entry to it
   write_u16(parent_block + parent->size, in->inode_num);
-  strcpy((char *)parent_block + 2, (char *)basename);
+  strcpy((char *)parent_block + parent->size + 2, (char *)basename); //maybe this should be the full name?
 
   // Write that block to disk
   bwrite(parent_block_num, parent_block);
