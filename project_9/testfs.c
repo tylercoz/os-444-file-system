@@ -329,16 +329,42 @@ void test_dir_c() {
     image_close();
   }
 
-  //directory_make()
-  // TODO
-  {
+// directory_make() tests
+{
     image_open(test_file, 1);
-
     mkfs();
-    directory_make("/foo/bar");
 
+    // create
+    int result = directory_make("/testdir");
+    CTEST_ASSERT(result == 0, "can create directory in root");
+
+    // invalid path
+    result = directory_make("invalid");
+    CTEST_ASSERT(result == -1, "path without / rejected");
+
+
+    // structure basics stuff 
+    struct inode *dir_inode = namei("/testdir");
+    unsigned char block[BLOCK_SIZE];
+    bread(dir_inode->block_ptr[0], block);
+    CTEST_ASSERT(read_u16(block) == dir_inode->inode_num, ". has correct inode");
+    CTEST_ASSERT(strcmp((char *)block + 2, ".") == 0, ". has correct name");
+    CTEST_ASSERT(read_u16(block + ENTRY_SIZE) == 0, ".. is root pointer");
+    CTEST_ASSERT(strcmp((char *)block + ENTRY_SIZE + 2, "..") == 0, ".. has correct name");
+
+    // size update 
+    struct inode *root_before = namei("/");
+    unsigned int size_before = root_before->size;
+    iput(root_before);
+    result = directory_make("/newdir");
+    CTEST_ASSERT(result == 0, "can create additional directory");
+    struct inode *root_after = namei("/");
+    CTEST_ASSERT(root_after->size == size_before + ENTRY_SIZE, "parent size increases");
+
+    iput(dir_inode);
+    iput(root_after);
     image_close();
-  }
+}
 }
 
 int main() {
